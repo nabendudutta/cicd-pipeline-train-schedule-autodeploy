@@ -11,68 +11,24 @@ pipeline {
                 sh 'npm install'
             }
         }
-        stage('Build Docker Image') {
-            when {
-                branch 'master'
-            }
-            steps {
-                script {
-                    app = docker.build(DOCKER_IMAGE_NAME)
-                    app.inside {
-                        sh 'echo Hello, World!'
-                    }
-                }
+    stage('docker Build') {
+            steps { 
+                sh "docker build -t lokeshhs591/project2.1 ."
             }
         }
-        stage('Push Docker Image') {
-            when {
-                branch 'master'
-            }
-            steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
-                        app.push("${env.BUILD_NUMBER}")
-                        app.push("latest")
-                    }
-                }
+        stage('docker push') {
+            steps { 
+                withCredentials([string(credentialsId: 'dockerhub', variable: 'DOCKER_HUB')]) {
+                 sh "docker login -u lokeshhs591 -p ${DOCKER_HUB}"
+                 }
+              sh "docker push lokeshhs591/project2.1"
+             /* sh "docker run -d -p 8082:8082 --name=project2.1  lokeshhs591/project2.1" */
             }
         }
-        stage('CanaryDeploy') {
-            when {
-                branch 'master'
-            }
-            environment { 
-                CANARY_REPLICAS = 1
-            }
-            steps {
-                kubernetesDeploy(
-                    kubeconfigId: 'kubeconfig',
-                    configs: 'train-schedule-kube-canary.yml',
-                    enableConfigSubstitution: true
-                )
+        stage('ddeploy in K8 cluster') {
+            steps { 
+                sh "kubectl apply -f train-schedule-kube.yml"
             }
         }
-        stage('DeployToProduction') {
-            when {
-                branch 'master'
-            }
-            environment { 
-                CANARY_REPLICAS = 0
-            }
-            steps {
-                input 'Deploy to Production?'
-                milestone(1)
-                kubernetesDeploy(
-                    kubeconfigId: 'kubeconfig',
-                    configs: 'train-schedule-kube-canary.yml',
-                    enableConfigSubstitution: true
-                )
-                kubernetesDeploy(
-                    kubeconfigId: 'kubeconfig',
-                    configs: 'train-schedule-kube.yml',
-                    enableConfigSubstitution: true
-                )
-            }
-        }
+        
     }
-}
