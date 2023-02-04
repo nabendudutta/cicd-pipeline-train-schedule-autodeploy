@@ -1,29 +1,41 @@
 pipeline {
-    agent any
-    environment {
-        //be sure to replace "bhavukm" with your own Docker Hub username
-        DOCKER_IMAGE_NAME = "nabendu89/train-schedule"
+
+  environment {
+    dockerimagename = "nabendu89/train-schedule"
+    dockerImage = ""
+  }
+
+  agent any
+
+  stages {
+
+    stage('Checkout Source') {
+      steps {
+        git 'https://github.com/nabendudutta/cicd-pipeline-train-schedule-autodeploy.git'
+      }
     }
-    stages {
-        stage('Build') {
-            steps {
-                echo 'Running build automation'
-                sh 'npm install'
-            }
+
+    stage('Build image') {
+      steps{
+        script {
+          dockerImage = docker.build dockerimagename
         }
-        stage('Build Docker Image') {
-            steps { 
-                sh "docker build -t nabendu89/train-schedule ."
-            }
-		}	
-        stage('Push Docker Image') {
-            steps { 
-                withCredentials([string(credentialsId: 'docker_hub_login', variable: 'DOCKER_HUB')]) {
-                 sh "docker login -u nabendu89 -p ${DOCKER_HUB}"
-                 }
-              sh "docker push nabendu89/train-schedule"
-             sh "docker run -d -p 8082:8082   nabendu89/train-schedule"
-            }
-        }
+      }
     }
+
+    stage('Pushing Image') {
+      environment {
+               registryCredential = 'docker_hub_login'
+           }
+      steps{
+        script {
+          docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
+            dockerImage.push("latest")
+          }
+        }
+      }
+    }
+
+  }
+
 }
