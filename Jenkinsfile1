@@ -13,7 +13,7 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps { 
-                sh "docker build -t lokeshhs591/project2.1 ."
+                sh "docker build -t nabendu89/train-schedule ."
             }
 		}	
         stage('Push Docker Image') {
