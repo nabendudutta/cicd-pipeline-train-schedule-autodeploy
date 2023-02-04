@@ -18,10 +18,10 @@ pipeline {
                  sh "docker login -u nabendu89 -p ${DOCKER_HUB}"
                  }
               sh "docker push nabendu89/train-schedule"
-             /* sh "docker run -d -p 8082:8082 --name=project2.1  nabendu89/train-schedule" */
+             /* sh "docker run -d -p 8082:8082 --name=train-schedule  nabendu89/train-schedule" */
             }
         }
-        stage('ddeploy in K8 cluster') {
+        stage('deploy in K8 cluster') {
             steps { 
                 sh "kubectl apply -f train-schedule-kube.yml"
             }
