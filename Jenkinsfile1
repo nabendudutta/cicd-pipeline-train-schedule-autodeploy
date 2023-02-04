@@ -14,7 +14,12 @@ pipeline {
         git 'https://github.com/nabendudutta/cicd-pipeline-train-schedule-autodeploy.git'
       }
     }
-
+    stage('Build') {
+            steps {
+                echo 'Running build automation'
+                sh 'npm install'
+            }
+        }
     stage('Build image') {
       steps{
         script {
