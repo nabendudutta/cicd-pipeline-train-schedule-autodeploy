@@ -19,11 +19,9 @@ pipeline {
         stage('Push Docker Image') {
             steps { 
                 sh 'echo $dockerhub_PSW | docker login -u $docker_USR --passwd-stdin'
-                 sh "docker login -u nabendu89 -p ${DOCKER_HUB}"
-                 }
-              sh "docker push nabendu89/train-schedule"
-              sh "docker run -d -p 8082:8082   nabendu89/train-schedule"
+                sh "docker push nabendu89/train-schedule"
+                sh "docker run -d -p 8082:8082   nabendu89/train-schedule"
             }
         }
     }
-
+}
