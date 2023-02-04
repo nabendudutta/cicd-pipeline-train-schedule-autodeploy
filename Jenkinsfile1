@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         //be sure to replace "bhavukm" with your own Docker Hub username
-        dockerhub=credentials('docker_hub_login')
+        DOCKER_IMAGE_NAME = "nabendu89/train-schedule"
     }
     stages {
         stage('Build') {
@@ -18,9 +18,11 @@ pipeline {
 		}	
         stage('Push Docker Image') {
             steps { 
-                sh 'echo $dockerhub_PSW | docker login -u $docker_USR --passwd-stdin'
-                sh "docker push nabendu89/train-schedule"
-                sh "docker run -d -p 8082:8082   nabendu89/train-schedule"
+                withCredentials([string(credentialsId: 'docker_hub_login', variable: 'DOCKER_HUB')]) {
+                 sh "docker login -u nabendu89 -p ${DOCKER_HUB}"
+                 }
+              sh "docker push nabendu89/train-schedule"
+             sh "docker run -d -p 8082:8082   nabendu89/train-schedule"
             }
         }
     }
