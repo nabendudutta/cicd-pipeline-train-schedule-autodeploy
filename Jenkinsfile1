@@ -40,6 +40,11 @@ pipeline {
         }
       }
     }
+	stage('Deploy in Kubernetes') {
+      steps{
+	     sh "kubectl apply -f train-schedule-kube.yml"
+        }
+    }
 
   }
 
