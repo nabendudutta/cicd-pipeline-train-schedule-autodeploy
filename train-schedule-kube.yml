@@ -34,7 +34,7 @@ spec:
       containers:
       - name: train-schedule
         #image: $DOCKER_IMAGE_NAME:$BUILD_NUMBER
-        image: nabendu89/train-schedule
+        image: registry.hub.docker.com/nabendu89/train-schedule
         ports:
         - containerPort: 8080
         livenessProbe:
